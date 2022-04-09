@@ -1,0 +1,3 @@
+imageLoader: postgresql://
+
+fileStorage: postgresql://
