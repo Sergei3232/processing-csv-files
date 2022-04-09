@@ -1,4 +1,4 @@
-package structTags
+package config
 
 import (
 	"gopkg.in/yaml.v2"

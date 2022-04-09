@@ -2,20 +2,22 @@ package main
 
 import (
 	"fmt"
-	"github.com/Sergei3232/processing-csv-files/internal/app/structTags"
-	"github.com/Sergei3232/processing-csv-files/internal/postgres"
+	"github.com/Sergei3232/processing-csv-files/internal/app/config"
+	"github.com/Sergei3232/processing-csv-files/internal/app/queue/postgres"
 	"log"
 )
 
-func main() {
-	config := structTags.NenConfig()
+const fileInt = "files/int"
 
-	ImageLoader, err := postgres.NewDBConnect(config.ImageLoader)
+func main() {
+	configs := config.NenConfig()
+
+	ImageLoader, err := postgres.NewDBConnect(configs.ImageLoader)
 	if err != nil {
 		log.Panicln(err)
 	}
 
-	FileStorage, err := postgres.NewDBConnect(config.FileStorage)
+	FileStorage, err := postgres.NewDBConnect(configs.FileStorage)
 	if err != nil {
 		log.Panicln(err)
 	}
