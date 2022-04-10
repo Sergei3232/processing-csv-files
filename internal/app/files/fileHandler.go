@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"os"
 	"strconv"
 )
@@ -58,8 +59,8 @@ func (f *FileHandler) FileTransfer(oldpath, newpath string) error {
 	return nil
 }
 
-func (f *FileHandler) CombiningFiles(listCombiningFiles []string) error {
-	dataCombining := [][]string{{"sku", "mapi_item", "vertica_variant", "height", "width"}}
+func (f *FileHandler) CombiningFiles(headFile []string, listCombiningFiles []string, fileName string) error {
+	dataCombining := [][]string{headFile}
 
 	for _, val := range listCombiningFiles {
 		combiningFiles, err := f.ReadToCSVFile(val)
@@ -67,14 +68,14 @@ func (f *FileHandler) CombiningFiles(listCombiningFiles []string) error {
 			return err
 		}
 
-		for _, combiningFile := range combiningFiles {
-			sku := strconv.Itoa(int(combiningFile.Sku))
-			mapiItem := strconv.Itoa(int(combiningFile.MapiItem))
-			verticaVariant := strconv.Itoa(int(combiningFile.VerticaVariant))
-			width := strconv.Itoa(int(combiningFile.Width))
-			height := strconv.Itoa(int(combiningFile.Height))
-			dataCombining = append(dataCombining, []string{sku, mapiItem, verticaVariant, width, height})
+		for _, combiningFile := range f.ConvertCsvFileToString(combiningFiles) {
+			dataCombining = append(dataCombining, combiningFile)
 		}
+	}
+
+	errSave := f.SaveCSVFile(dataCombining, fileName)
+	if errSave != nil {
+		log.Panic(errSave)
 	}
 
 	return nil
@@ -122,4 +123,57 @@ func (f *FileHandler) ReadToCSVFile(file string) ([]CsvFile, error) {
 	}
 
 	return dataCSV, nil
+}
+
+func (f *FileHandler) DivideFileIntoPortions(listFile []CsvFile, file string, portion int) error {
+	startP, endP := 0, portion
+
+	n, nomberFile := 0, 1
+	for startP < len(listFile) {
+
+		//arrayPortion := make([]CsvFile, 0, portion)
+		//if endP > len(listFile){
+		//	arrayPortion = listFile[startP:]
+		//} else {
+		//	arrayPortion = listFile[startP:endP]
+		//}
+		n += 1
+		nomberFile += 1
+		//	testUnloadingCSVT(arrayPortion, file, nomberFile)
+		startP += portion
+		endP += portion
+	}
+	return nil
+}
+
+func (f *FileHandler) SaveCSVFile(dataFile [][]string, fileName string) error {
+	file, errCreate := os.Create(fileName)
+	if errCreate != nil {
+		log.Panic(errCreate)
+	}
+
+	w := csv.NewWriter(file)
+
+	for _, record := range dataFile {
+		if err := w.Write(record); err != nil {
+			log.Fatalln("error writing record to csv:", err)
+		}
+	}
+	w.Flush()
+
+	return nil
+}
+
+func (f *FileHandler) ConvertCsvFileToString(listFile []CsvFile) [][]string {
+	arrayStringCSV := make([][]string, 0, len(listFile))
+
+	for _, combiningFile := range listFile {
+		sku := strconv.Itoa(int(combiningFile.Sku))
+		mapiItem := strconv.Itoa(int(combiningFile.MapiItem))
+		verticaVariant := strconv.Itoa(int(combiningFile.VerticaVariant))
+		width := strconv.Itoa(int(combiningFile.Width))
+		height := strconv.Itoa(int(combiningFile.Height))
+		arrayStringCSV = append(arrayStringCSV, []string{sku, mapiItem, verticaVariant, width, height})
+	}
+	return arrayStringCSV
 }
