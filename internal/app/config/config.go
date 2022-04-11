@@ -9,8 +9,9 @@ import (
 const yamlFile = "configs/config.yaml"
 
 type Config struct {
-	ImageLoader string `yaml:"imageLoader"`
-	FileStorage string `yaml:"fileStorage"`
+	ImageLoader   string `yaml:"imageLoader"`
+	FileStorage   string `yaml:"fileStorage"`
+	TypeOperation string `yaml:"type_operation"`
 }
 
 func NenConfig() *Config {
