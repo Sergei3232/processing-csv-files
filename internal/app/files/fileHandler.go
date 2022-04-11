@@ -125,21 +125,25 @@ func (f *FileHandler) ReadToCSVFile(file string) ([]CsvFile, error) {
 	return dataCSV, nil
 }
 
-func (f *FileHandler) DivideFileIntoPortions(listFile []CsvFile, file string, portion int) error {
+func (f *FileHandler) DivideFileIntoPortions(listFile []CsvFile, portion int) error {
 	startP, endP := 0, portion
 
-	n, nomberFile := 0, 1
+	n := 0
 	for startP < len(listFile) {
 
-		//arrayPortion := make([]CsvFile, 0, portion)
-		//if endP > len(listFile){
-		//	arrayPortion = listFile[startP:]
-		//} else {
-		//	arrayPortion = listFile[startP:endP]
-		//}
+		arrayPortion := make([]CsvFile, 0, portion)
+		if endP > len(listFile) {
+			arrayPortion = listFile[startP:]
+		} else {
+			arrayPortion = listFile[startP:endP]
+		}
 		n += 1
-		nomberFile += 1
-		//	testUnloadingCSVT(arrayPortion, file, nomberFile)
+		fileNameT := strconv.Itoa(n) + ".csv"
+		dataToSave := f.ConvertCsvFileToString(arrayPortion)
+		err := f.SaveCSVFile(dataToSave, fileNameT)
+		if err != nil {
+			log.Panicln(err)
+		}
 		startP += portion
 		endP += portion
 	}
